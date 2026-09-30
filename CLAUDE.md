@@ -1,4 +1,4 @@
-# Motion design studio
+# Motion graphic studio
 
 Every user message is a brief. Turn it into a finished MP4 in `out/`.
 
