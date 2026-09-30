@@ -1,0 +1,492 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Inter Tight'; src: url('../assets/inboxmonster/fonts/InterTight.ttf') format('truetype'); font-weight: 100 900; }
+
+  :root {
+    --plum: #70046E;
+    --plum-deep: #330033;
+    --blue: #465CD4;
+    --blue-soft: #EEF1FC;
+    --ink: #0F172A;
+    --muted: #64748B;
+    --line: #E2E8F0;
+    --bg: #F4F6FB;
+    --green: #16A34A;
+  }
+
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  body { font-family: 'Inter Tight', sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .abs { position: absolute; }
+  .morph { position: absolute; box-sizing: border-box; }
+  svg.ic { width: 34px; height: 34px; fill: none; stroke: var(--blue); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Headline + captions */
+  #headline { z-index: 20; left: 0; top: 0; transform-origin: 0 0; white-space: nowrap; font-size: 104px; font-weight: 700; letter-spacing: -0.03em; color: var(--plum); }
+  #brandmark { z-index: 20; left: 120px; top: 84px; height: 40px; }
+  .cap { z-index: 20; left: 120px; top: 400px; width: 520px; }
+  .cap .num { width: 64px; height: 64px; border-radius: 32px; background: var(--blue); color: #fff; font-size: 32px; font-weight: 700; display: grid; place-items: center; }
+  .cap h2 { margin: 32px 0 18px; font-size: 60px; line-height: 1.05; font-weight: 700; letter-spacing: -0.025em; }
+  .cap p { margin: 0; font-size: 30px; line-height: 1.4; color: var(--muted); }
+  #dots { z-index: 20; left: 120px; top: 880px; display: flex; gap: 12px; }
+  #dots i { display: block; height: 10px; border-radius: 5px; background: #CBD5E1; }
+
+  /* Button → modal → report */
+  #panel { z-index: 5; background: #fff; overflow: hidden; }
+  #btn-label { z-index: 6; color: #fff; font-size: 34px; font-weight: 600; display: flex; align-items: center; gap: 14px; white-space: nowrap; }
+  #btn-label svg { width: 30px; height: 30px; stroke: #fff; stroke-width: 2.4; fill: none; stroke-linecap: round; }
+
+  .m { z-index: 6; }
+  #m-title { font-size: 40px; font-weight: 600; letter-spacing: -0.015em; }
+  #m-x { font-size: 40px; color: var(--blue); }
+  #m-q { font-size: 28px; font-weight: 600; }
+  #clip { z-index: 6; overflow: hidden; }
+  .row { position: absolute; left: 0; right: 0; }
+  .row .head { height: 110px; display: flex; align-items: center; gap: 28px; font-size: 30px; font-weight: 600; border-top: 2px solid var(--line); }
+  .row .chev { margin-left: auto; width: 26px; height: 26px; stroke: var(--blue); stroke-width: 2; fill: none; }
+  .row .body { overflow: hidden; padding-left: 62px; }
+  .body .sub { font-size: 25px; color: #334155; margin-bottom: 14px; }
+  .addr { font-size: 30px; font-weight: 600; display: flex; align-items: center; gap: 14px; }
+  .pill { display: inline-flex; align-items: center; gap: 12px; height: 60px; padding: 0 30px; border-radius: 30px; background: var(--blue); color: #fff; font-size: 26px; font-weight: 600; }
+  .pill svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.2; fill: none; stroke-linecap: round; }
+  #file { z-index: 7; height: 60px; padding: 0 24px; border-radius: 14px; background: var(--blue-soft); border: 2px solid #C7D0F5; display: flex; align-items: center; gap: 14px; font-size: 25px; font-weight: 600; color: var(--ink); white-space: nowrap; box-sizing: border-box; }
+  #file .ext { font-size: 16px; font-weight: 700; color: #fff; background: var(--plum); border-radius: 6px; padding: 5px 8px; }
+  .tabs { display: flex; gap: 44px; font-size: 28px; font-weight: 500; color: #334155; border-bottom: 2px solid var(--line); height: 64px; align-items: flex-start; padding-left: 18px; margin-left: -62px; position: relative; }
+  .tabs .on { color: var(--blue); }
+  #tab-bar { position: absolute; bottom: -2px; height: 4px; border-radius: 2px; background: var(--blue); }
+  .label { font-size: 24px; margin: 26px 0 12px; }
+  .area { height: 300px; border: 2px solid var(--blue); border-radius: 24px; padding: 20px 24px; box-sizing: border-box; font: 22px/1.55 ui-monospace, Menlo, monospace; color: #334155; white-space: pre; overflow: hidden; }
+  .area .tg { color: var(--blue); } .area .at { color: var(--plum); } .area .st { color: #0E7C4A; }
+  .input { height: 64px; border: 2px solid var(--line); border-radius: 32px; padding: 0 26px; box-sizing: border-box; font-size: 25px; line-height: 60px; white-space: nowrap; }
+  .input.focus { border-color: var(--blue); }
+  .caret { display: inline-block; width: 2px; height: 1.1em; background: var(--ink); vertical-align: -0.18em; margin-left: 1px; }
+  #foot { z-index: 7; border-top: 2px solid var(--line); background: #fff; }
+  #cancel { z-index: 8; font-size: 27px; font-weight: 600; color: var(--blue); }
+  #run { z-index: 8; overflow: hidden; }
+  #run-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--blue); }
+  #run-label { position: absolute; inset: 0; display: grid; place-items: center; font-size: 27px; font-weight: 600; color: #fff; white-space: nowrap; }
+  #prog { z-index: 7; left: 700px; width: 1100px; top: 400px; text-align: center; }
+  #prog .pct { font-size: 150px; font-weight: 700; letter-spacing: -0.04em; color: var(--blue); }
+  #prog .msg { font-size: 30px; color: var(--muted); margin-top: 6px; }
+
+  /* Report */
+  .r { z-index: 6; }
+  #r-crumb { font-size: 22px; color: var(--muted); }
+  #r-crumb b { font-weight: 500; color: var(--ink); }
+  #r-title { font-size: 46px; font-weight: 700; color: var(--plum); letter-spacing: -0.02em; }
+  #r-meta { font-size: 22px; color: var(--muted); }
+  #r-meta b { color: var(--ink); font-weight: 600; }
+  #r-used { text-align: right; }
+  #r-used div:first-child { font-size: 22px; color: var(--muted); }
+  #r-used div:last-child { font-size: 56px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+  .tile { z-index: 6; width: 336px; }
+  .tile .dev { height: 196px; border-radius: 18px; background: #EDF1F7; position: relative; overflow: hidden; }
+  .tile .lab { margin-top: 12px; font-size: 21px; font-weight: 600; color: #334155; }
+  .tile .lab span { color: var(--muted); font-weight: 500; }
+  .stat { z-index: 9; font-size: 21px; color: var(--muted); }
+  .stat div:last-child { margin-top: 4px; font-size: 32px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 10px; }
+  .stat .ok { width: 26px; height: 26px; border-radius: 13px; background: var(--green); display: grid; place-items: center; }
+  .stat .ok svg { width: 16px; height: 16px; stroke: #fff; stroke-width: 3; fill: none; }
+
+  /* Email mock (demo brand) */
+  .mail { position: absolute; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 14px rgba(15,23,42,.08); }
+  .mail.dark { background: #1E1B24; }
+  .mail .brand { position: absolute; left: 0; right: 0; top: 7%; text-align: center; font-weight: 800; letter-spacing: .18em; color: #3B2A4A; }
+  .mail.dark .brand { color: #F1E9F5; }
+  .mail .hero { position: absolute; left: 8%; right: 8%; top: 20%; height: 38%; border-radius: 6px; background: linear-gradient(135deg, #FF7A59, #FFB36B); color: #fff; font-weight: 800; display: grid; place-items: center; letter-spacing: -.01em; }
+  .mail .ln { position: absolute; left: 18%; height: 4.5%; border-radius: 4px; background: #CBD5E1; }
+  .mail.dark .ln { background: #4B4453; }
+  .mail .cta { position: absolute; left: 34%; right: 34%; top: 82%; height: 9%; border-radius: 20px; background: var(--plum); }
+  .mail.dark .cta { background: #FF7A59; }
+  .phone { position: absolute; background: #0F172A; border-radius: 16px; }
+
+  /* End */
+  #end-logo { z-index: 30; left: 660px; top: 380px; width: 600px; }
+  .end { z-index: 30; left: 0; right: 0; text-align: center; }
+  #end-tag { top: 600px; font-size: 56px; font-weight: 700; letter-spacing: -0.025em; color: var(--ink); }
+  #end-url { top: 700px; font-size: 30px; font-weight: 500; color: var(--blue); }
+
+  #cursor { z-index: 100; width: 44px; left: 0; top: 0; transform-origin: 0 0; }
+</style>
+<script src="../lib/motion.js"></script>
+</head>
+<body>
+
+<img id="brandmark" class="abs" src="../assets/inboxmonster/logo.svg">
+<div id="headline" class="abs">How to create a rendering</div>
+
+<div class="abs cap" id="cap1"><div class="num">1</div><h2>Pick how to add your email</h2><p>Send a test email, upload an HTML file, or paste your code.</p></div>
+<div class="abs cap" id="cap2"><div class="num">2</div><h2>Paste HTML, add a title and subject</h2><p>Open Insert content, then choose the HTML tab.</p></div>
+<div class="abs cap" id="cap3"><div class="num">3</div><h2>Hit Run Test</h2><p>Your email gets rendered in real inboxes and devices.</p></div>
+<div class="abs cap" id="cap4"><div class="num">4</div><h2>Review every preview</h2><p>Check desktop, mobile and dark mode, plus links, size and load time.</p></div>
+<div id="dots" class="abs"><i></i><i></i><i></i><i></i></div>
+
+<div id="panel" class="morph"></div>
+<div id="btn-label" class="abs"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg>Create Rendering</div>
+
+<!-- Modal -->
+<div id="m-title" class="abs m">Create Rendering</div>
+<div id="m-x" class="abs m">✕</div>
+<div id="m-q" class="abs m">How would you like to add your content?</div>
+<div id="clip" class="abs">
+  <div class="row" id="row0">
+    <div class="head"><svg class="ic" viewBox="0 0 24 24"><path d="M21 3L10 14M21 3l-7 18-4-7-7-4z"/></svg>Send to address<svg class="chev" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></div>
+    <div class="body"><div class="sub">Send a test email to create your rendering</div>
+      <div class="addr">demo7Kq2@rendering.inboxmonster.com <svg class="ic" style="width:28px;height:28px" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3M14 11v6M11 14h6"/></svg></div></div>
+  </div>
+  <div class="row" id="row1">
+    <div class="head"><svg class="ic" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 17v3h16v-3"/></svg>Upload a file<svg class="chev" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></div>
+    <div class="body"><div class="sub">Upload an html or txt file</div>
+      <div class="pill" id="upload-btn">Upload file <svg viewBox="0 0 24 24"><path d="M12 16V5M7 10l5-5 5 5M5 19h14"/></svg></div></div>
+  </div>
+  <div class="row" id="row2">
+    <div class="head"><svg class="ic" viewBox="0 0 24 24"><path d="M10 4h9v16h-9M3 12h11M10 8l4 4-4 4"/></svg>Insert content<svg class="chev" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></div>
+    <div class="body">
+      <div class="tabs"><span id="tab-t">Template</span><span id="tab-h">HTML</span><div id="tab-bar"></div></div>
+      <div class="label">Content</div>
+      <div class="area" id="code"></div>
+      <div class="label">Rendering Title</div>
+      <div class="input" id="in-title"></div>
+      <div class="label">Subject</div>
+      <div class="input" id="in-subject"></div>
+    </div>
+  </div>
+</div>
+<div id="file" class="abs"><span class="ext">HTML</span>spring-sale.html</div>
+<div id="foot" class="morph"></div>
+<div id="cancel" class="abs">Cancel</div>
+<div id="run" class="morph"><div id="run-fill"></div><div id="run-label">Run Test</div></div>
+
+<div id="prog" class="abs"><div class="pct" id="pct">0%</div><div class="msg">Rendering across 99 inboxes and devices…</div></div>
+
+<!-- Report -->
+<div id="r-crumb" class="abs r">Creative Tools &nbsp;›&nbsp; Rendering &nbsp;›&nbsp; <b>Rendering Report</b></div>
+<div id="r-title" class="abs r">Spring Sale – Hero A</div>
+<div id="r-meta" class="abs r"><b>Subject</b> &nbsp;Spring Sale: 20% off everything</div>
+<div id="r-used" class="abs r"><div>Previews used</div><div id="r-num">0</div></div>
+<div id="tiles"></div>
+<div id="stats"></div>
+
+<!-- End -->
+<img id="end-logo" class="abs" src="../assets/inboxmonster/logo.svg">
+<div id="end-tag" class="abs end">Preview every inbox before you hit send.</div>
+<div id="end-url" class="abs end">app.inboxmonster.com › Creative Rendering</div>
+
+<svg id="cursor" class="abs" viewBox="0 0 24 24"><path d="M3 2l17 10-7.5 1.6L9 21z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+
+<script>
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => [...document.querySelectorAll(sel)];
+
+  const POP = { stiffness: 220, damping: 14 };
+  const SNAP = { stiffness: 200, damping: 22 };
+  const SOFT = { stiffness: 120, damping: 20 };
+
+  const fadeIn = (t, start, dur = 0.3) => easeOutCubic(progress(t, start, start + dur));
+  const fadeOut = (t, start, dur = 0.3) => 1 - fadeIn(t, start, dur);
+  const box = (x, y, w, h, r) => ({ x, y, w, h, r });
+
+  function place(el, b) {
+    el.style.left = `${b.x}px`;
+    el.style.top = `${b.y}px`;
+    el.style.width = `${Math.max(0, b.w)}px`;
+    el.style.height = `${Math.max(0, b.h)}px`;
+    el.style.borderRadius = `${Math.max(0, b.r)}px`;
+  }
+  const at = (el, x, y) => { el.style.left = `${x}px`; el.style.top = `${y}px`; };
+  // Fade + rise for text that sits on a surface; `out` fades it away again.
+  function rise(el, t, start, out = 1e9, dy = 24) {
+    const p = spring(t - start, SNAP);
+    el.style.transform = `translateY(${lerp(dy, 0, p)}px)`;
+    el.style.opacity = clamp(p * 2) * fadeOut(t, out, 0.25);
+  }
+  const press = (t, at, depth = 0.05) => 1 - depth * Math.sin(Math.PI * progress(t, at, at + 0.16));
+  const typed = (s, t, start, cps) => s.slice(0, Math.floor(clamp((t - start) * cps, 0, s.length)));
+
+  // ---------------------------------------------------------------- timeline (seconds)
+  const T = {
+    title: 0.2, btn: 0.7, click0: 1.75, modal: 1.95, rows: 2.35,
+    open0: 3.2, open1: 4.5, file: 5.1, open2: 6.3, code: 6.9, scroll: 8.6, ttl: 8.9, subj: 9.6,
+    click1: 10.55, bar: 10.75, fill: 11.0, report: 12.2, end: 16.4, dur: 19.5,
+  };
+  const CAPS = [[T.rows + 0.2, T.open2 - 0.1], [T.open2 + 0.1, T.click1 - 0.1], [T.click1 + 0.1, T.report + 0.3], [T.report + 0.5, T.end]];
+
+  // Geometry
+  const MODAL = box(700, 70, 1100, 940, 32);
+  const PAD = 56;
+  const CLIP = { x: MODAL.x + PAD, y: MODAL.y + 200, w: MODAL.w - 2 * PAD };
+  const FOOT_H = 112;
+  const HEAD = 110;
+  const OPEN_H = [120, 136, 780];
+  const RUN = box(MODAL.x + MODAL.w - PAD - 190, MODAL.y + MODAL.h - 86, 190, 62, 31);
+  const BAR = box(MODAL.x + PAD, MODAL.y + MODAL.h - 86, MODAL.w - 2 * PAD, 62, 31);
+  const REPORT = box(660, 60, 1180, 960, 32);
+  const STRIP = box(REPORT.x + 48, REPORT.y + REPORT.h - 148, REPORT.w - 96, 108, 22);
+
+  // ---------------------------------------------------------------- build DOM
+  const CODE = [
+    '<table width="600" role="presentation">',
+    '  <tr><td class="hero">',
+    '    <h1>Spring Sale</h1>',
+    '    <p>20% off everything, this week.</p>',
+    '    <a href="https://bloom.example/sale"',
+    '       class="btn">Shop now</a>',
+    '  </td></tr>',
+    '</table>',
+  ];
+  const CODE_STR = CODE.join('\n');
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Single-pass tokenizer so partial (still-typing) text highlights cleanly.
+  const highlight = (s) => s.replace(/(<\/?[a-z0-9]*)|( [a-z-]+=)|("[^"\n]*"?)|([^<"]+?(?=<| [a-z-]+=|"|$))/gs, (m, tg, at, st) =>
+    tg ? `<span class="tg">${esc(tg)}</span>` : at ? `<span class="at">${esc(at)}</span>` : st ? `<span class="st">${esc(st)}</span>` : esc(m));
+
+  function mail(dark, w, h) {
+    return `<div class="mail${dark ? ' dark' : ''}" style="left:${-w / 2}px; top:${-h / 2}px; width:${w}px; height:${h}px">
+      <div class="brand" style="font-size:${Math.max(7, h * 0.055)}px">BLOOM &amp; CO.</div>
+      <div class="hero" style="font-size:${h * 0.1}px">Spring Sale</div>
+      <div class="ln" style="top:64%; right:18%"></div>
+      <div class="ln" style="top:72%; right:30%"></div>
+      <div class="cta"></div>
+    </div>`;
+  }
+  const TILES = [
+    ['Gmail', 'Desktop', 'desk', false], ['Outlook', 'Windows', 'desk', false], ['Apple Mail', 'iPhone 16', 'phone', false],
+    ['Gmail', 'Android', 'phone', false], ['Yahoo', 'Web', 'desk', false], ['Apple Mail', 'Dark mode', 'phone', true],
+  ];
+  const TILE_POS = (i) => [REPORT.x + 48 + (i % 3) * 364, REPORT.y + 250 + Math.floor(i / 3) * 268];
+  $('#tiles').innerHTML = TILES.map(([app, dev, kind, dark], i) => {
+    const [x, y] = TILE_POS(i);
+    const inner = kind === 'desk'
+      ? `<div style="position:absolute; left:50%; top:54%">${mail(dark, 240, 156)}</div>`
+      : `<div class="phone" style="left:128px; top:18px; width:80px; height:200px"></div>
+         <div style="position:absolute; left:50%; top:58%">${mail(dark, 68, 150)}</div>`;
+    return `<div class="abs tile" style="left:${x}px; top:${y}px"><div class="dev">${inner}</div>
+      <div class="lab">${app} <span>· ${dev}</span></div></div>`;
+  }).join('');
+
+  const CHECK = '<span class="ok"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span>';
+  const STATS = [['Broken links', '0', true], ['Unsecure links', '0', true], ['HTML size', '48.2kb', false], ['Load time', '142ms', false]];
+  $('#stats').innerHTML = STATS.map(([k, v, ok], i) =>
+    `<div class="abs stat" style="left:${STRIP.x + 40 + i * 272}px; top:${STRIP.y + 20}px"><div>${k}</div><div>${ok ? CHECK : ''}${v}</div></div>`).join('');
+
+  // ---------------------------------------------------------------- render parts
+  function renderHeadline(t) {
+    const p = spring(t - T.title, SNAP);
+    const el = $('#headline');
+    const w = el.offsetWidth;
+    const k = chain(t, [
+      [0, { x: 960, y: 360, s: 1 }],
+      [T.modal, { x: 120 + w * 0.42 / 2, y: 150, s: 0.42 }, SOFT],
+    ], SNAP);
+    el.style.transform = `translate(${k.x - (w * k.s) / 2}px, ${k.y + lerp(30, 0, p)}px) scale(${k.s})`;
+    el.style.opacity = clamp(p * 2) * fadeOut(t, T.end, 0.3);
+    const bm = $('#brandmark');
+    bm.style.opacity = fadeIn(t, T.modal + 0.3, 0.4) * fadeOut(t, T.end, 0.3);
+  }
+
+  function renderCaps(t) {
+    $$('.cap').forEach((el, i) => rise(el, t, CAPS[i][0], CAPS[i][1], 30));
+    const active = CAPS.findIndex(([a, b]) => t >= a && t < b + 0.25);
+    const dotsOn = fadeIn(t, CAPS[0][0], 0.3) * fadeOut(t, T.end, 0.3);
+    $('#dots').style.opacity = dotsOn;
+    $$('#dots i').forEach((d, i) => {
+      const on = CAPS[i][0] <= t && t < CAPS[i][1] + 0.25;
+      const p = on ? fadeIn(t, CAPS[i][0], 0.3) : 0;
+      d.style.width = `${lerp(10, 44, p)}px`;
+      d.style.background = mixColor('#CBD5E1', '#465CD4', p);
+    });
+  }
+
+  function renderPanel(t) {
+    const btn = box(960 - 200, 560, 400, 96, 48);
+    const k = chain(t, [
+      [0, box(960 - 8, 608 - 8, 16, 16, 8)],
+      [T.btn, btn, POP],
+      [T.modal, MODAL, SNAP],
+      [T.report, REPORT, SNAP],
+      [T.end, box(960 - 60, 540 - 60, 120, 120, 60), SNAP],
+      [T.end + 0.35, box(960, 540, 0, 0, 0), SNAP],
+    ], SNAP);
+    const el = $('#panel');
+    place(el, k);
+    el.style.background = mixColor('#465CD4', '#FFFFFF', progress(t, T.modal, T.modal + 0.25));
+    el.style.opacity = t < T.btn ? 0 : 1;
+    el.style.boxShadow = `0 30px 80px rgba(51,0,51,${0.1 * progress(t, T.modal, T.modal + 0.4)})`;
+    el.style.transform = `scale(${press(t, T.click0)})`;
+
+    const lab = $('#btn-label');
+    at(lab, btn.x + 52, btn.y + 28);
+    lab.style.opacity = fadeIn(t, T.btn + 0.25, 0.25) * fadeOut(t, T.modal, 0.12);
+    lab.style.transform = `scale(${press(t, T.click0)})`;
+  }
+
+  function renderModal(t) {
+    const out = T.bar + 0.15;
+    at($('#m-title'), MODAL.x + PAD, MODAL.y + 44);
+    at($('#m-x'), MODAL.x + MODAL.w - PAD - 26, MODAL.y + 42);
+    at($('#m-q'), MODAL.x + PAD, MODAL.y + 130);
+    rise($('#m-title'), t, T.modal + 0.25, out);
+    rise($('#m-x'), t, T.modal + 0.3, out);
+    rise($('#m-q'), t, T.modal + 0.35, out);
+
+    // Accordion: only one row open at a time.
+    const open = [
+      clamp(spring(t - T.open0, SNAP) - spring(t - T.open1, SNAP), 0, 1.03),
+      clamp(spring(t - T.open1, SNAP) - spring(t - T.open2, SNAP), 0, 1.03),
+      clamp(spring(t - T.open2, SNAP), 0, 1.03),
+    ];
+    const footOn = spring(t - T.open2 - 0.2, SNAP);
+    const clipH = MODAL.h - 200 - lerp(24, FOOT_H, clamp(footOn));
+    const clip = $('#clip');
+    place(clip, { ...CLIP, h: clipH, r: 0 });
+    clip.style.opacity = fadeOut(t, out, 0.25);
+
+    let y = 0;
+    const tops = [];
+    open.forEach((o, i) => {
+      const row = $(`#row${i}`);
+      tops.push(y);
+      const p = spring(t - T.rows - i * 0.09, SNAP);
+      row.style.top = `${y}px`;
+      row.style.opacity = clamp(p * 2);
+      row.style.transform = `translateY(${lerp(24, 0, p)}px)`;
+      row.querySelector('.body').style.height = `${OPEN_H[i] * o}px`;
+      row.querySelector('.chev').style.transform = `rotate(${180 * clamp(o)}deg)`;
+      y += HEAD + OPEN_H[i] * o;
+    });
+    // Scroll the Insert content section into view, then down to the title/subject fields.
+    const scroll = chain(t, [[0, { s: 0 }], [T.open2 + 0.1, { s: 2 * HEAD - 8 }], [T.scroll, { s: 2 * HEAD + 336 }]], SOFT).s;
+    $$('.row').forEach((r) => { r.style.marginTop = `${-scroll}px`; });
+
+    // Uploaded file chip drops in beside the Upload button, leaves when the row closes.
+    const fileEl = $('#file');
+    const fp = spring(t - T.file, POP);
+    at(fileEl, CLIP.x + 62 + 250, CLIP.y + tops[1] - scroll + HEAD + 44);
+    fileEl.style.opacity = clamp(fp * 3) * fadeOut(t, T.open2 - 0.1, 0.2);
+    fileEl.style.transform = `translateY(${lerp(-40, 0, fp)}px) scale(${lerp(0.8, 1, clamp(fp))})`;
+    $('#upload-btn').style.transform = `scale(${press(t, T.file - 0.2, 0.08)})`;
+
+    // HTML tab
+    const tabP = spring(t - T.open2 - 0.35, SNAP);
+    $('#tab-t').classList.toggle('on', tabP < 0.5);
+    $('#tab-h').classList.toggle('on', tabP >= 0.5);
+    const bar = $('#tab-bar');
+    bar.style.left = `${lerp(0, 162, tabP)}px`;
+    bar.style.width = `${lerp(160, 108, tabP)}px`;
+
+    const src = typed(CODE_STR, t, T.code, 150);
+    $('#code').innerHTML = highlight(src) + (t > T.code - 0.2 && t < T.ttl ? '<span class="caret"></span>' : '');
+    const title = 'Spring Sale – Hero A';
+    const subj = 'Spring Sale: 20% off everything';
+    const ti = $('#in-title'), si = $('#in-subject');
+    ti.innerHTML = esc(typed(title, t, T.ttl, 36)) + (t >= T.ttl && t < T.subj ? '<span class="caret"></span>' : '');
+    si.innerHTML = esc(typed(subj, t, T.subj, 44)) + (t >= T.subj && t < T.click1 ? '<span class="caret"></span>' : '');
+    ti.classList.toggle('focus', t >= T.ttl && t < T.subj);
+    si.classList.toggle('focus', t >= T.subj && t < T.click1);
+
+    // Footer + Run Test, which stretches into the progress bar and then the report's stats strip.
+    const foot = $('#foot');
+    place(foot, box(MODAL.x, MODAL.y + MODAL.h - FOOT_H, MODAL.w, FOOT_H, 0));
+    foot.style.opacity = clamp(footOn) * fadeOut(t, out, 0.25);
+    const cancel = $('#cancel');
+    at(cancel, RUN.x - 150, RUN.y + 14);
+    cancel.style.opacity = clamp(footOn) * fadeOut(t, T.bar, 0.15);
+
+    const rk = chain(t, [
+      [0, RUN],
+      [T.bar, BAR, SNAP],
+      [T.report, STRIP, SNAP],
+      [T.end, box(960 - 60, 540 - 60, 120, 120, 60), SNAP],
+      [T.end + 0.35, box(960, 540, 0, 0, 0), SNAP],
+    ], SNAP);
+    const run = $('#run');
+    place(run, rk);
+    run.style.opacity = clamp(footOn);
+    run.style.transform = `scale(${press(t, T.click1, 0.08)})`;
+    const toStrip = progress(t, T.report, T.report + 0.35);
+    run.style.background = mixColor(t < T.bar ? '#465CD4' : '#E3E7F8', '#F4F6FB', toStrip);
+    const fp2 = easeInOutCubic(progress(t, T.fill, T.report - 0.1));
+    $('#run-fill').style.width = `${(t < T.bar ? 1 : fp2) * 100}%`;
+    $('#run-fill').style.opacity = 1 - toStrip;
+    $('#run-label').style.opacity = fadeOut(t, T.bar, 0.12);
+    $('#pct').textContent = `${Math.round(fp2 * 100)}%`;
+    rise($('#prog'), t, T.bar + 0.2, T.report - 0.05);
+  }
+
+  function renderReport(t) {
+    const out = T.end;
+    at($('#r-crumb'), REPORT.x + 48, REPORT.y + 44);
+    at($('#r-title'), REPORT.x + 48, REPORT.y + 90);
+    at($('#r-meta'), REPORT.x + 48, REPORT.y + 162);
+    at($('#r-used'), REPORT.x + REPORT.w - 48 - 260, REPORT.y + 96);
+    $('#r-used').style.width = '260px';
+    rise($('#r-crumb'), t, T.report + 0.3, out);
+    rise($('#r-title'), t, T.report + 0.38, out);
+    rise($('#r-meta'), t, T.report + 0.46, out);
+    rise($('#r-used'), t, T.report + 0.46, out);
+    $('#r-num').textContent = Math.round(99 * easeOutCubic(progress(t, T.report + 0.5, T.report + 1.8)));
+
+    $$('.tile').forEach((el, i) => {
+      const s = spring(t - T.report - 0.6 - i * 0.1, POP);
+      el.style.transform = `scale(${Math.max(0, lerp(0.5, 1, s))})`;
+      el.style.opacity = clamp(s * 3) * fadeOut(t, out - 0.1 + i * 0.02, 0.2);
+    });
+    $$('.stat').forEach((el, i) => rise(el, t, T.report + 0.5 + i * 0.08, out - 0.1, 16));
+  }
+
+  function renderEnd(t) {
+    const p = spring(t - T.end - 0.5, POP);
+    const logo = $('#end-logo');
+    logo.style.opacity = clamp(p * 3);
+    logo.style.transform = `scale(${Math.max(0, lerp(0.6, 1, p))})`;
+    rise($('#end-tag'), t, T.end + 0.8);
+    rise($('#end-url'), t, T.end + 1.0);
+  }
+
+  function renderCursor(t) {
+    const btnC = { x: 1020, y: 620 };
+    const row0 = { x: 1500, y: CLIP.y + 50 };
+    const up = { x: CLIP.x + 62 + 100, y: CLIP.y + HEAD + 136 - 40 + 56 };
+    const row2 = { x: 1500, y: CLIP.y + 2 * HEAD + 50 };
+    const tabH = { x: CLIP.x + 200, y: CLIP.y + 36 };
+    const runC = { x: RUN.x + 110, y: RUN.y + 36 };
+    const k = chain(t, [
+      [0, { x: 1500, y: 1160 }],
+      [0.9, btnC, SOFT],
+      [2.6, { x: 1680, y: 820 }, SOFT],
+      [2.95, row0, SNAP],
+      [4.25, { x: 1500, y: CLIP.y + HEAD + 136 + 50 }, SNAP],
+      [4.75, up, SNAP],
+      [6.0, row2, SNAP],
+      [6.45, tabH, SNAP],
+      [7.0, { x: 1560, y: 760 }, SOFT],
+      [10.1, runC, SNAP],
+      [11.0, { x: 1880, y: 1000 }, SOFT],
+    ], SNAP);
+    const clicks = [T.click0, T.open0, T.open1, T.file - 0.2, T.open2, T.open2 + 0.35, T.click1];
+    const s = clicks.reduce((m, c) => Math.min(m, press(t, c, 0.18)), 1);
+    const el = $('#cursor');
+    el.style.transform = `translate(${k.x}px, ${k.y}px) scale(${s})`;
+    el.style.opacity = fadeOut(t, 11.3, 0.3);
+  }
+
+  window.scene = {
+    width: 1920,
+    height: 1080,
+    duration: T.dur,
+    render(t) {
+      renderHeadline(t);
+      renderCaps(t);
+      renderPanel(t);
+      renderModal(t);
+      renderReport(t);
+      renderEnd(t);
+      renderCursor(t);
+    },
+  };
+  window.scene.render(0);
+</script>
+</body>
+</html>
