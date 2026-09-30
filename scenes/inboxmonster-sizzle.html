@@ -1,0 +1,384 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Monstie Sans'; src: url('../assets/inboxmonster/fonts/MonstieSans-ExtraBold.woff2') format('woff2'); font-weight: 700; }
+  @font-face { font-family: 'DM Sans'; src: url('../assets/inboxmonster/fonts/DMSans-Variable.ttf') format('truetype'); font-weight: 100 1000; }
+
+  :root {
+    --plum: #700469;
+    --plum-deep: #330033;
+    --green: #00DB4F;
+    --blue: #5D77D2;
+    --pink: #FF6C96;
+    --red: #FE3E21;
+    --yellow: #F5BE1B;
+    --mint: #ECF4F2;
+    --mint-deep: #E4EDEB;
+    --ink: #000;
+  }
+
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #fff; }
+  body { font-family: 'DM Sans', sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .layer { position: absolute; inset: 0; overflow: hidden; }
+  .abs { position: absolute; }
+  .display { font-family: 'Monstie Sans', sans-serif; font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
+  .eyebrow { font-weight: 600; font-size: 26px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .line { display: block; overflow: hidden; padding-bottom: 0.08em; }
+  .word { display: inline-block; }
+
+  /* 1 — Hero */
+  #hero { background: var(--mint); }
+
+  /* 2 — Team sport */
+  #team { background: var(--plum); }
+  #team-pill {
+    left: 50%; top: 250px; height: 96px; border-radius: 48px; background: var(--plum-deep);
+    transform: translateX(-50%); overflow: hidden; white-space: nowrap;
+  }
+  #team-pill span { display: block; padding: 0 44px; line-height: 96px; font-size: 44px; color: #fff; }
+  #team-title { left: 0; right: 0; top: 400px; text-align: center; color: #fff; font-size: 150px; }
+
+  /* 3 — Products */
+  #products { background: var(--mint); }
+  #products-head { left: 0; right: 0; top: 130px; text-align: center; color: var(--plum); }
+  #products-head .display { font-size: 96px; margin-top: 20px; }
+  .card {
+    width: 400px; height: 480px; top: 400px; box-sizing: border-box; padding: 40px 36px;
+    background: #fff; border-radius: 28px; box-shadow: 0 20px 50px rgba(51, 0, 51, 0.10);
+  }
+  .card .tile { width: 112px; height: 112px; border-radius: 20px; background: var(--mint); display: grid; place-items: center; }
+  .card .tile img { width: 78px; }
+  /* Titles sit on a two-line baseline so every card's body copy lines up. */
+  .card h3 { margin: 32px 0 18px; height: 92px; display: flex; align-items: flex-end; font-size: 46px; color: var(--plum); }
+  .card p { margin: 0; font-size: 26px; line-height: 1.4; }
+
+  /* 4 — Stats */
+  #stats { background: #fff; }
+  #stats-head { left: 0; right: 0; top: 110px; text-align: center; color: var(--plum); font-size: 96px; }
+  .stat {
+    width: 780px; height: 300px; box-sizing: border-box; padding: 48px 56px;
+    background: var(--mint); border-radius: 28px;
+  }
+  .stat .num { font-size: 132px; color: var(--plum); }
+  .stat .label { margin-top: 24px; font-size: 32px; }
+
+  /* 5 — Inbox placement */
+  #placement { background: var(--plum); }
+  #placement-copy { left: 150px; top: 330px; width: 760px; color: #fff; }
+  #placement-copy .display { font-size: 116px; }
+  #placement-copy p { margin: 36px 0 0; font-size: 34px; line-height: 1.4; opacity: 0.85; }
+  #ipr {
+    left: 1000px; top: 330px; width: 780px; box-sizing: border-box; padding: 48px;
+    background: #F6EEF5; border-radius: 24px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+  }
+  #ipr .row { display: flex; justify-content: space-between; align-items: baseline; }
+  #ipr .title { font-size: 32px; font-weight: 600; color: var(--plum-deep); }
+  #ipr .big { font-size: 64px; color: var(--plum-deep); }
+  #ipr .bar { display: flex; gap: 8px; height: 28px; margin: 40px 0 44px; }
+  #ipr .bar div { height: 100%; border-radius: 14px; }
+  #ipr .cols { display: flex; }
+  #ipr .col { flex: 1; padding-left: 28px; border-left: 2px solid #E3D3E1; }
+  #ipr .col:first-child { padding-left: 0; border-left: 0; }
+  #ipr .col .k { font-size: 26px; color: #6B5A69; }
+  #ipr .col .v { margin-top: 12px; font-size: 40px; font-weight: 600; color: var(--plum-deep); display: flex; align-items: center; gap: 14px; }
+  #ipr .dot { width: 20px; height: 20px; border-radius: 50%; }
+
+  /* 6 — End card */
+  #end { background: #fff; }
+  #end-logo { left: 50%; top: 250px; width: 760px; margin-left: -380px; }
+  #end-tag { left: 0; right: 0; top: 520px; text-align: center; color: var(--plum); font-size: 80px; }
+  #end-btn {
+    left: 50%; top: 700px; height: 110px; border-radius: 55px; background: var(--plum);
+    transform: translateX(-50%); overflow: hidden; white-space: nowrap;
+  }
+  #end-btn span { display: block; padding: 0 64px; line-height: 110px; font-size: 42px; font-weight: 600; color: #fff; }
+  #end-url { left: 0; right: 0; top: 870px; text-align: center; font-size: 32px; font-weight: 500; color: var(--plum-deep); }
+</style>
+<script src="../lib/motion.js"></script>
+</head>
+<body>
+
+<!-- 1 — Hero: "Epic emails. Every time." -->
+<section id="hero" class="layer">
+  <img id="hero-left" class="abs" src="../assets/inboxmonster/hero-left.svg" style="left:0; top:0; height:720px">
+  <img id="hero-right" class="abs" src="../assets/inboxmonster/hero-right.svg" style="right:0; top:0; height:720px">
+  <img id="w-epic"  class="abs" src="../assets/inboxmonster/word-epic.svg"   style="left:520px; top:215px; width:410px">
+  <img id="w-emails" class="abs" src="../assets/inboxmonster/word-emails.svg" style="left:862px; top:276px; width:627px">
+  <img id="w-every" class="abs" src="../assets/inboxmonster/word-every.svg"  style="left:594px; top:468px; width:499px">
+  <img id="w-time"  class="abs" src="../assets/inboxmonster/word-time.svg"   style="left:1010px; top:621px; width:462px">
+  <img id="m-blue"  class="abs" src="../assets/inboxmonster/monstie-blue.svg"  style="left:410px; top:470px; width:158px">
+  <img id="m-red"   class="abs" src="../assets/inboxmonster/monstie-red.svg"   style="left:655px; top:705px; width:158px">
+  <img id="m-pink"  class="abs" src="../assets/inboxmonster/monstie-pink.svg"  style="left:1420px; top:510px; width:150px">
+  <img id="m-green" class="abs" src="../assets/inboxmonster/monstie-green.svg" style="left:1250px; top:840px; width:150px">
+</section>
+
+<!-- 2 — Team sport -->
+<section id="team" class="layer">
+  <div id="team-pill" class="abs"><span class="display">The ultimate tool for email teams</span></div>
+  <div id="team-title" class="abs display">
+    <span class="line"><span class="word">Sending</span> <span class="word">email</span></span>
+    <span class="line"><span class="word">is</span> <span class="word">a</span> <span class="word">team</span> <span class="word">sport.</span></span>
+  </div>
+  <img class="abs team-m" src="../assets/inboxmonster/monster-green-mohawk.svg" style="left:540px; top:830px; width:150px">
+  <img class="abs team-m" src="../assets/inboxmonster/monster-blue-happy.svg"   style="left:780px; top:858px; width:150px">
+  <img class="abs team-m" src="../assets/inboxmonster/monster-pink-tooth.svg"   style="left:1020px; top:858px; width:150px">
+  <img class="abs team-m" src="../assets/inboxmonster/monster-yellow-heart.svg" style="left:1260px; top:858px; width:150px">
+</section>
+
+<!-- 3 — Products -->
+<section id="products" class="layer">
+  <div id="products-head" class="abs">
+    <div class="eyebrow">Products</div>
+    <div class="display">Explore our email platform</div>
+  </div>
+  <div class="abs card" style="left:120px">
+    <div class="tile"><img src="../assets/inboxmonster/monster-yellow-heart.svg"></div>
+    <h3 class="display">Research</h3>
+    <p>Go deep on email research with Monster Search &amp; Monster Boards.</p>
+  </div>
+  <div class="abs card" style="left:560px">
+    <div class="tile"><img src="../assets/inboxmonster/monster-green-mohawk.svg"></div>
+    <h3 class="display">Creative Rendering</h3>
+    <p>120+ device previews, plus killer diagnostics to get closer to perfect.</p>
+  </div>
+  <div class="abs card" style="left:1000px">
+    <div class="tile"><img src="../assets/inboxmonster/monster-blue-happy.svg"></div>
+    <h3 class="display">Deliverability</h3>
+    <p>See what’s really going on in the inbox, from placement to monitoring.</p>
+  </div>
+  <div class="abs card" style="left:1440px">
+    <div class="tile"><img src="../assets/inboxmonster/monster-pink-tooth.svg"></div>
+    <h3 class="display">SMS</h3>
+    <p>A single snapshot of every relevant SMS metric, for the first time.</p>
+  </div>
+</section>
+
+<!-- 4 — Stats -->
+<section id="stats" class="layer">
+  <div id="stats-head" class="abs display">Let’s do epic email together</div>
+  <div class="abs stat" style="left:160px; top:330px"><div class="num display" data-to="120" data-suffix="+">0</div><div class="label">Modern device previews</div></div>
+  <div class="abs stat" style="left:980px; top:330px"><div class="num display" data-to="90">0</div><div class="label">Mailsystems monitored worldwide</div></div>
+  <div class="abs stat" style="left:160px; top:670px"><div class="num display" data-to="6" data-suffix=" billion+">0</div><div class="label">Spamtrap hits monitored monthly</div></div>
+  <div class="abs stat" style="left:980px; top:670px"><div class="num display" data-to="30" data-suffix="%">0</div><div class="label">Increase in inbox placement within 30 days</div></div>
+</section>
+
+<!-- 5 — Inbox placement -->
+<section id="placement" class="layer">
+  <div id="placement-copy" class="abs">
+    <div class="display">
+      <span class="line"><span class="word">See where</span></span>
+      <span class="line"><span class="word">your emails</span></span>
+      <span class="line"><span class="word">land</span></span>
+    </div>
+    <p>Inbox placement across 90 mailsystems worldwide.</p>
+  </div>
+  <div id="ipr" class="abs">
+    <div class="row"><div class="title">Overall Inbox Placement Rate</div><div class="big display" id="ipr-big">0%</div></div>
+    <div class="bar">
+      <div id="bar-inbox" style="background:var(--green)"></div>
+      <div id="bar-bulk" style="background:var(--yellow)"></div>
+      <div id="bar-missing" style="background:var(--red)"></div>
+    </div>
+    <div class="cols">
+      <div class="col"><div class="k">Inbox</div><div class="v"><span class="dot" style="background:var(--green)"></span><span id="v-inbox">0%</span></div></div>
+      <div class="col"><div class="k">Bulk</div><div class="v"><span class="dot" style="background:var(--yellow)"></span><span id="v-bulk">0%</span></div></div>
+      <div class="col"><div class="k">Missing</div><div class="v"><span class="dot" style="background:var(--red)"></span><span id="v-missing">0%</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 — End card -->
+<section id="end" class="layer">
+  <img id="end-logo" class="abs" src="../assets/inboxmonster/logo.svg">
+  <div id="end-tag" class="abs display">Epic emails. Every time.</div>
+  <div id="end-btn" class="abs"><span>Book a demo</span></div>
+  <div id="end-url" class="abs">inboxmonster.com</div>
+  <img id="end-m1" class="abs" src="../assets/inboxmonster/monstie-blue.svg"  style="left:150px; top:760px; width:200px">
+  <img id="end-m2" class="abs" src="../assets/inboxmonster/monstie-pink.svg"  style="left:1580px; top:140px; width:180px">
+</section>
+
+<script>
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => [...document.querySelectorAll(sel)];
+
+  // Spring presets
+  const POP = { stiffness: 220, damping: 14 };     // bouncy pop-in
+  const SNAP = { stiffness: 200, damping: 22 };    // quick, slight overshoot
+  const SMOOTH = { stiffness: 120, damping: 22 };  // no-fuss settle
+
+  // Scene boundaries (seconds). Each scene's layer is revealed over the previous one.
+  const T = { team: 3.6, products: 6.8, stats: 11.4, placement: 15.4, end: 19.0, out: 23.0 };
+
+  function show(el, visible) { el.style.visibility = visible ? 'visible' : 'hidden'; }
+
+  // Pop an element in from scale 0 around a pivot, with optional idle bob afterwards.
+  function pop(el, t, start, { origin = '50% 50%', rotate = 0, bob = 0, phase = 0 } = {}) {
+    const p = spring(t - start, POP);
+    const y = bob * Math.sin((t - start) * 2.4 + phase) * clamp(t - start);
+    el.style.transformOrigin = origin;
+    el.style.transform = `translateY(${y}px) scale(${Math.max(0, p)}) rotate(${lerp(rotate, 0, clamp(p))}deg)`;
+    el.style.opacity = clamp(p * 4);
+  }
+
+  // Slide words up from under their line mask, staggered.
+  function riseWords(words, t, start, stagger = 0.07) {
+    words.forEach((w, i) => {
+      const p = spring(t - start - i * stagger, SNAP);
+      w.style.transform = `translateY(${lerp(110, 0, p)}%)`;
+    });
+  }
+
+  // Pop in as a circle (height × height), then stretch to the label's natural width.
+  function growPill(el, t, start) {
+    const label = el.firstElementChild;
+    const h = el.offsetHeight;
+    const scale = Math.max(0, spring(t - start, POP));
+    const p = spring(t - start - 0.3, SNAP);
+    el.style.width = `${Math.max(0, lerp(h, label.scrollWidth, p))}px`;
+    el.style.transform = `translateX(-50%) scale(${scale})`;
+    label.style.opacity = clamp((t - start - 0.45) / 0.25);
+  }
+
+  function renderHero(t) {
+    const L = $('#hero-left'), R = $('#hero-right');
+    const pl = spring(t - 0.05, SMOOTH), pr = spring(t - 0.15, SMOOTH);
+    L.style.transform = `translateX(${lerp(-560, 0, pl)}px)`;
+    R.style.transform = `translateX(${lerp(620, 0, pr)}px)`;
+
+    pop($('#w-epic'), t, 0.35, { origin: '15% 100%', rotate: -8 });
+    pop($('#w-emails'), t, 0.6, { origin: '80% 100%', rotate: 8 });
+    pop($('#w-every'), t, 0.85, { origin: '25% 100%', rotate: -6 });
+    pop($('#w-time'), t, 1.1, { origin: '50% 100%', rotate: 6 });
+
+    pop($('#m-blue'), t, 1.35, { bob: 8, phase: 0 });
+    pop($('#m-pink'), t, 1.5, { bob: 8, phase: 1.5 });
+    pop($('#m-red'), t, 1.65, { bob: 8, phase: 3 });
+    pop($('#m-green'), t, 1.8, { bob: 8, phase: 4.5 });
+  }
+
+  function renderTeam(t) {
+    const local = t - T.team;
+    // Circle wipe from the centre.
+    const r = lerp(0, 1200, easeInOutCubic(progress(local, 0, 0.6)));
+    $('#team').style.clipPath = `circle(${r}px at 50% 50%)`;
+
+    growPill($('#team-pill'), t, T.team + 0.4);
+    riseWords($$('#team-title .word'), t, T.team + 0.75);
+    $$('.team-m').forEach((m, i) => {
+      const p = spring(local - 1.5 - i * 0.12, POP);
+      const bob = 6 * Math.sin(local * 3 + i) * clamp(local - 1.5 - i * 0.12);
+      m.style.transform = `translateY(${lerp(260, 0, p) + bob}px)`;
+    });
+  }
+
+  function renderProducts(t) {
+    const local = t - T.products;
+    // Wipe up from the bottom.
+    const w = easeInOutCubic(progress(local, 0, 0.55));
+    $('#products').style.clipPath = `inset(${(1 - w) * 100}% 0 0 0)`;
+
+    const head = $('#products-head');
+    const ph = spring(local - 0.3, SNAP);
+    head.style.transform = `translateY(${lerp(60, 0, ph)}px)`;
+    head.style.opacity = clamp(ph * 2);
+
+    $$('#products .card').forEach((c, i) => {
+      const p = spring(local - 0.7 - i * 0.14, SNAP);
+      c.style.transform = `translateY(${lerp(420, 0, p)}px) rotate(${lerp(i % 2 ? 6 : -6, 0, clamp(p))}deg)`;
+      const img = c.querySelector('.tile img');
+      if (img) {
+        const q = spring(local - 1.1 - i * 0.14, POP);
+        img.style.transform = `scale(${Math.max(0, q)})`;
+      }
+    });
+  }
+
+  function renderStats(t) {
+    const local = t - T.stats;
+    const w = easeInOutCubic(progress(local, 0, 0.55));
+    $('#stats').style.clipPath = `inset(0 ${(1 - w) * 100}% 0 0)`;
+
+    const head = $('#stats-head');
+    const ph = spring(local - 0.3, SNAP);
+    head.style.transform = `translateY(${lerp(60, 0, ph)}px)`;
+    head.style.opacity = clamp(ph * 2);
+
+    $$('#stats .stat').forEach((s, i) => {
+      const start = local - 0.6 - i * 0.15;
+      const p = spring(start, SNAP);
+      s.style.transform = `scale(${lerp(0.6, 1, p)})`;
+      s.style.opacity = clamp(p * 3);
+      const num = s.querySelector('.num');
+      const to = Number(num.dataset.to);
+      const v = to * easeOutCubic(progress(start, 0.1, 1.6));
+      num.textContent = Math.round(v) + (num.dataset.suffix ?? '');
+    });
+  }
+
+  function renderPlacement(t) {
+    const local = t - T.placement;
+    const r = lerp(0, 2300, easeInOutCubic(progress(local, 0, 0.7)));
+    $('#placement').style.clipPath = `circle(${r}px at 100% 100%)`;
+
+    riseWords($$('#placement-copy .word'), t, T.placement + 0.45, 0.1);
+    const sub = $('#placement-copy p');
+    sub.style.opacity = clamp((local - 1.0) / 0.4);
+
+    const card = $('#ipr');
+    const pc = spring(local - 0.7, SNAP);
+    card.style.transform = `translateY(${lerp(700, 0, pc)}px) rotate(${lerp(5, 0, clamp(pc))}deg)`;
+
+    // Bar fills, then values count up with it.
+    const fill = easeOutCubic(progress(local, 1.3, 2.8));
+    const inbox = 94.85 * fill, bulk = 5.14 * fill, missing = 0.01 * fill;
+    const track = 780 - 96 - 16; // card inner width minus the two gaps
+    $('#bar-inbox').style.width = `${track * inbox / 100}px`;
+    $('#bar-bulk').style.width = `${track * bulk / 100}px`;
+    $('#bar-missing').style.width = `${Math.max(fill > 0.9 ? 12 : 0, track * missing / 100)}px`;
+    $('#v-inbox').textContent = `${inbox.toFixed(2)}%`;
+    $('#v-bulk').textContent = `${bulk.toFixed(2)}%`;
+    $('#v-missing').textContent = `${missing.toFixed(2)}%`;
+    $('#ipr-big').textContent = `${inbox.toFixed(2)}%`;
+  }
+
+  function renderEnd(t) {
+    const local = t - T.end;
+    const w = easeInOutCubic(progress(local, 0, 0.55));
+    $('#end').style.clipPath = `inset(0 0 ${(1 - w) * 100}% 0)`;
+
+    pop($('#end-logo'), t, T.end + 0.35);
+    const tag = $('#end-tag');
+    const pt = spring(local - 0.75, SNAP);
+    tag.style.transform = `translateY(${lerp(50, 0, pt)}px)`;
+    tag.style.opacity = clamp(pt * 2);
+
+    growPill($('#end-btn'), t, T.end + 1.1);
+    $('#end-url').style.opacity = clamp((local - 1.7) / 0.4);
+    pop($('#end-m1'), t, T.end + 1.4, { rotate: -20, bob: 10 });
+    pop($('#end-m2'), t, T.end + 1.55, { rotate: 20, bob: 10, phase: 2 });
+  }
+
+  window.scene = {
+    width: 1920,
+    height: 1080,
+    duration: T.out,
+    render(t) {
+      // Only draw the current scene and the one it's being revealed over.
+      const order = ['hero', 'team', 'products', 'stats', 'placement', 'end'];
+      const starts = [0, T.team, T.products, T.stats, T.placement, T.end];
+      const cur = starts.findLastIndex((s) => t >= s);
+      order.forEach((id, i) => show($('#' + id), i === cur || i === cur - 1));
+
+      if (cur <= 1) renderHero(t);
+      if (cur >= 1 && cur <= 2) renderTeam(t);
+      if (cur >= 2 && cur <= 3) renderProducts(t);
+      if (cur >= 3 && cur <= 4) renderStats(t);
+      if (cur >= 4) renderPlacement(t);
+      if (cur >= 5) renderEnd(t);
+    },
+  };
+</script>
+</body>
+</html>

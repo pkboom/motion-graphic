@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; background: #fff; overflow: hidden; }
+  #shape {
+    position: absolute; left: 50%; top: 50%;
+    height: 160px; background: #000; border-radius: 9999px;
+    transform: translate(-50%, -50%);
+  }
+</style>
+<script src="../lib/motion.js"></script>
+</head>
+<body>
+<div id="shape"></div>
+<script>
+  // Scene contract: the renderer reads width/height/duration and calls render(t) per frame.
+  const shape = document.getElementById('shape');
+  window.scene = {
+    width: 1280,
+    height: 720,
+    duration: 2,
+    render(t) {
+      const p = spring(t - 0.25, { stiffness: 170, damping: 12 });
+      shape.style.width = `${lerp(160, 560, p)}px`;
+    },
+  };
+</script>
+</body>
+</html>

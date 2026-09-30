@@ -1,0 +1,564 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Monstie Sans'; src: url('../assets/inboxmonster/fonts/MonstieSans-ExtraBold.woff2') format('woff2'); font-weight: 700; }
+  @font-face { font-family: 'DM Sans'; src: url('../assets/inboxmonster/fonts/DMSans-Variable.ttf') format('truetype'); font-weight: 100 1000; }
+
+  :root {
+    --plum: #700469;
+    --plum-deep: #330033;
+    --green: #00DB4F;
+    --yellow: #F5BE1B;
+    --red: #FE3E21;
+    --mint: #ECF4F2;
+    --mint-deep: #E4EDEB;
+  }
+
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--mint); }
+  body { font-family: 'DM Sans', sans-serif; color: #000; -webkit-font-smoothing: antialiased; }
+  .abs { position: absolute; }
+  .display { font-family: 'Monstie Sans', sans-serif; font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
+  .center { left: 0; right: 0; text-align: center; }
+  .morph { position: absolute; box-sizing: border-box; }
+
+  /* Nav */
+  #shell { z-index: 1; box-shadow: 0 12px 40px rgba(51, 0, 51, 0.08); }
+  .nav-item { z-index: 4; top: 90px; font-size: 26px; font-weight: 500; color: var(--plum-deep); white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+  .nav-item svg { width: 16px; height: 16px; }
+  #nav-logo { z-index: 4; left: 130px; top: 77px; height: 56px; }
+  #nav-book, #nav-login {
+    z-index: 4; top: 75px; height: 60px; line-height: 60px; border-radius: 30px; box-sizing: border-box;
+    font-size: 24px; font-weight: 600; text-align: center;
+  }
+  #nav-book { left: 1450px; width: 210px; background: var(--plum); color: #fff; }
+  #nav-login { left: 1680px; width: 120px; border: 3px solid var(--plum-deep); line-height: 54px; color: var(--plum-deep); }
+
+  /* Dropdown */
+  #hl { z-index: 2; }
+  #rowhl { z-index: 3; }
+  .row { z-index: 4; left: 630px; width: 660px; height: 124px; display: flex; align-items: center; gap: 24px; padding: 0 20px; box-sizing: border-box; }
+  .row .tile { flex: none; width: 84px; height: 84px; border-radius: 18px; background: var(--mint); display: grid; place-items: center; }
+  .row .tile img { width: 58px; }
+  .row h4 { margin: 0 0 6px; font-size: 34px; color: var(--plum); }
+  .row p { margin: 0; font-size: 21px; color: #333; }
+
+  /* Rendering card contents */
+  .cr { z-index: 5; }
+  #cr-title { left: 200px; top: 150px; font-size: 72px; color: var(--plum); }
+  #cr-stat { right: 200px; top: 140px; text-align: right; color: var(--plum); }
+  #cr-stat .display { font-size: 72px; }
+  #cr-stat div:last-child { font-size: 24px; margin-top: 6px; color: #333; }
+  .prev { width: 480px; height: 300px; border-radius: 20px; background: #F4F7F7; }
+  .prev .mail { position: absolute; left: 20px; top: 20px; width: 440px; height: 220px; border-radius: 14px; background: #fff; overflow: hidden; }
+  .prev.dark .mail { background: var(--plum-deep); }
+  .prev .mail .logo { position: absolute; left: 20px; top: 16px; height: 20px; }
+  .prev .bar { position: absolute; left: 20px; height: 16px; border-radius: 8px; background: var(--plum); }
+  .prev.dark .bar { background: #fff; }
+  .prev .cta { position: absolute; left: 20px; top: 160px; width: 110px; height: 30px; border-radius: 15px; background: var(--plum); }
+  .prev.dark .cta { background: #fff; }
+  .prev .mon { position: absolute; right: 20px; bottom: -14px; width: 120px; }
+  .prev .label { position: absolute; left: 20px; top: 256px; font-size: 21px; font-weight: 600; color: var(--plum); }
+
+  /* Deliverability */
+  #ipr { z-index: 6; }
+  #track { z-index: 7; }
+  .seg { z-index: 8; top: 600px; height: 44px; border-radius: 22px; }
+  .ipr-t { z-index: 8; }
+  #ipr-title { left: 260px; top: 460px; font-size: 40px; font-weight: 600; color: var(--plum-deep); }
+  #ipr-big { right: 260px; top: 440px; font-size: 96px; color: var(--plum-deep); }
+  .ipr-col { top: 700px; width: 400px; }
+  .ipr-col .k { font-size: 28px; color: #6B5A69; }
+  .ipr-col .v { margin-top: 10px; font-size: 44px; font-weight: 600; color: var(--plum-deep); display: flex; align-items: center; gap: 14px; }
+  .ipr-col .dot { width: 22px; height: 22px; border-radius: 50%; }
+  .heading { z-index: 9; font-size: 88px; color: #fff; }
+
+  /* Chart */
+  .col { z-index: 8; }
+  #chart-svg { z-index: 9; position: absolute; left: 0; top: 0; }
+  .val { z-index: 9; width: 120px; text-align: center; font-size: 26px; font-weight: 600; color: #fff; }
+  .axis { z-index: 9; font-size: 24px; color: rgba(255, 255, 255, 0.75); }
+
+  /* Phone */
+  .ph { z-index: 10; }
+  #screen { z-index: 9; background: #fff; }
+  .bubble { z-index: 10; font-size: 26px; line-height: 1.35; padding: 18px 24px; border-radius: 28px; box-sizing: border-box; background: #E9EEF2; color: #111; }
+  #sms-stat { z-index: 10; left: 170px; top: 330px; color: var(--plum); }
+  #sms-stat .eyebrow { font-size: 26px; font-weight: 600; letter-spacing: 0.12em; }
+  #sms-stat .display { font-size: 200px; margin: 18px 0; }
+  #sms-stat div:last-child { font-size: 32px; color: #333; width: 480px; }
+  .carrier { z-index: 10; left: 1270px; font-size: 32px; display: flex; align-items: center; gap: 18px; color: var(--plum-deep); }
+  .carrier b { width: 180px; font-weight: 600; }
+  .carrier span.dot { width: 18px; height: 18px; border-radius: 50%; background: var(--green); }
+
+  /* Brand + end */
+  #bub { z-index: 11; }
+  .brand { z-index: 12; }
+  #end-logo { z-index: 12; left: 580px; top: 220px; width: 760px; }
+  #end-tag { z-index: 12; top: 500px; font-size: 80px; color: var(--plum); }
+  #end-btn { z-index: 12; overflow: hidden; white-space: nowrap; }
+  #end-btn span { display: block; line-height: 110px; text-align: center; font-size: 42px; font-weight: 600; color: #fff; }
+  #end-url { z-index: 12; top: 850px; font-size: 32px; font-weight: 500; color: var(--plum-deep); }
+
+  #cursor { z-index: 100; width: 44px; left: 0; top: 0; transform-origin: 0 0; }
+</style>
+<script src="../lib/motion.js"></script>
+</head>
+<body>
+
+<!-- Nav -->
+<div id="shell" class="morph"></div>
+<img id="nav-logo" class="abs" src="../assets/inboxmonster/logo.svg">
+<div class="abs nav-item" style="left:640px">Expert Services</div>
+<div class="abs nav-item" id="nav-products" style="left:882px">Products <svg viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+<div class="abs nav-item" style="left:1060px">Resources <svg viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+<div class="abs nav-item" style="left:1260px">Pricing</div>
+<div id="nav-book" class="abs">Book a demo</div>
+<div id="nav-login" class="abs">Log in</div>
+
+<!-- Dropdown: #hl grows out of the Products hover state -->
+<div id="hl" class="morph"></div>
+<div id="rowhl" class="morph"></div>
+<div id="rows"></div>
+
+<!-- Creative rendering (inside #rowhl once it grows) -->
+<div id="cr-title" class="abs cr display">Creative Rendering</div>
+<div id="cr-stat" class="abs cr"><div class="display" id="cr-num">0+</div><div>Modern device previews</div></div>
+<div id="previews"></div>
+
+<!-- Deliverability: #track is the preview's CTA button, stretched -->
+<div id="ipr" class="morph"></div>
+<div id="track" class="morph"></div>
+<div id="seg-inbox" class="abs seg" style="left:260px; background:var(--green)"></div>
+<div id="seg-bulk" class="abs seg" style="background:var(--yellow)"></div>
+<div id="seg-missing" class="abs seg" style="background:var(--red)"></div>
+<div id="ipr-title" class="abs ipr-t">Overall Inbox Placement Rate</div>
+<div id="ipr-big" class="abs ipr-t display">0%</div>
+<div class="abs ipr-t ipr-col" style="left:260px"><div class="k">Inbox</div><div class="v"><span class="dot" style="background:var(--green)"></span><span id="v-inbox">0%</span></div></div>
+<div class="abs ipr-t ipr-col" style="left:760px"><div class="k">Bulk</div><div class="v"><span class="dot" style="background:var(--yellow)"></span><span id="v-bulk">0%</span></div></div>
+<div class="abs ipr-t ipr-col" style="left:1260px"><div class="k">Missing</div><div class="v"><span class="dot" style="background:var(--red)"></span><span id="v-missing">0%</span></div></div>
+<div id="h-ipr" class="abs center heading display" style="top:210px">See where your emails land</div>
+
+<!-- Chart: columns are slices of the inbox bar -->
+<div id="cols"></div>
+<svg id="chart-svg" width="1920" height="1080"><polyline id="chart-line" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><g id="chart-dots"></g></svg>
+<div id="vals"></div>
+<div id="axis-a" class="abs axis" style="left:270px; top:930px">Day 1</div>
+<div id="axis-b" class="abs axis" style="left:1530px; top:930px; width:120px; text-align:right">Day 30</div>
+<div id="h-chart" class="abs center heading display" style="top:150px">30% more inbox placement in 30 days</div>
+
+<!-- SMS: the tallest column becomes the phone -->
+<div id="screen" class="morph"></div>
+<div id="notch" class="abs ph" style="left:900px; top:160px; width:120px; height:30px; border-radius:15px; background:var(--plum-deep)"></div>
+<div id="contact" class="abs ph" style="left:778px; top:220px; width:364px; text-align:center; font-size:24px; font-weight:600; color:var(--plum-deep)">Inbox Monster</div>
+<div id="b1" class="abs bubble" style="left:800px; top:290px; width:310px">Your order is on its way! Track it here:</div>
+<div id="b2" class="abs bubble" style="left:800px; top:430px; width:250px; color:var(--plum); font-weight:600; text-decoration:underline">im.link/track</div>
+<div id="delivered" class="abs ph" style="left:800px; top:510px; font-size:20px; color:#6B5A69">Delivered</div>
+<div id="sms-stat" class="abs"><div class="eyebrow">SMS SUITE</div><div class="display">98%</div><div>Average open rate for SMS</div></div>
+<div id="carriers"></div>
+
+<!-- Brand -->
+<div id="bub" class="morph"></div>
+<img id="hero-left" class="abs brand" src="../assets/inboxmonster/hero-left.svg" style="left:0; top:0; height:720px; z-index:1">
+<img id="hero-right" class="abs brand" src="../assets/inboxmonster/hero-right.svg" style="right:0; top:0; height:720px; z-index:1">
+<img id="w-epic"   class="abs brand" src="../assets/inboxmonster/word-epic.svg"   style="left:520px; top:215px; width:410px">
+<img id="w-emails" class="abs brand" src="../assets/inboxmonster/word-emails.svg" style="left:862px; top:276px; width:627px">
+<img id="w-every"  class="abs brand" src="../assets/inboxmonster/word-every.svg"  style="left:594px; top:468px; width:499px">
+<img id="w-time"   class="abs brand" src="../assets/inboxmonster/word-time.svg"   style="left:1010px; top:621px; width:462px">
+<img id="m-blue"  class="abs brand" src="../assets/inboxmonster/monstie-blue.svg"  style="left:410px; top:470px; width:158px">
+<img id="m-red"   class="abs brand" src="../assets/inboxmonster/monstie-red.svg"   style="left:655px; top:705px; width:158px">
+<img id="m-pink"  class="abs brand" src="../assets/inboxmonster/monstie-pink.svg"  style="left:1420px; top:510px; width:150px">
+<img id="m-green" class="abs brand" src="../assets/inboxmonster/monstie-green.svg" style="left:1250px; top:840px; width:150px">
+
+<!-- End -->
+<img id="end-logo" class="abs" src="../assets/inboxmonster/logo.svg">
+<div id="end-tag" class="abs center display">Epic emails. Every time.</div>
+<div id="end-btn" class="morph"><span>Book a demo</span></div>
+<div id="end-url" class="abs center">inboxmonster.com</div>
+
+<svg id="cursor" class="abs" viewBox="0 0 24 24"><path d="M3 2l17 10-7.5 1.6L9 21z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+
+<script>
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => [...document.querySelectorAll(sel)];
+
+  const POP = { stiffness: 220, damping: 14 };
+  const SNAP = { stiffness: 200, damping: 22 };
+  const SOFT = { stiffness: 120, damping: 20 };
+
+  const fadeIn = (t, start, dur = 0.3) => easeOutCubic(progress(t, start, start + dur));
+  const fadeOut = (t, start, dur = 0.3) => 1 - fadeIn(t, start, dur);
+  const box = (x, y, w, h, r) => ({ x, y, w, h, r });
+
+  function place(el, b, bg) {
+    el.style.left = `${b.x}px`;
+    el.style.top = `${b.y}px`;
+    el.style.width = `${Math.max(0, b.w)}px`;
+    el.style.height = `${Math.max(0, b.h)}px`;
+    el.style.borderRadius = `${Math.max(0, b.r)}px`;
+    if (bg) el.style.background = bg;
+  }
+  function popScale(el, t, start, cfg = POP) {
+    const p = Math.max(0, spring(t - start, cfg));
+    el.style.transform = `scale(${p})`;
+    el.style.opacity = clamp(p * 4);
+  }
+  // Fade + rise used for text that belongs to a surface.
+  function rise(el, t, start, out = 1e9, dy = 30) {
+    const p = spring(t - start, SNAP);
+    el.style.transform = `translateY(${lerp(dy, 0, p)}px)`;
+    el.style.opacity = clamp(p * 2) * fadeOut(t, out, 0.25);
+  }
+
+  // ---------------------------------------------------------------- build DOM
+  const PRODUCTS = [
+    ['monster-yellow-heart', 'Research', 'Monster Search & Monster Boards'],
+    ['monster-green-mohawk', 'Creative Rendering', 'Device previews + killer diagnostics'],
+    ['monster-blue-happy', 'Deliverability', 'See what’s really going on in the inbox'],
+    ['monster-pink-tooth', 'SMS', 'Every SMS metric in one snapshot'],
+  ];
+  const ROW_Y = (i) => 222 + i * 140;
+  $('#rows').innerHTML = PRODUCTS.map(([img, title, desc], i) => `
+    <div class="abs row" style="top:${ROW_Y(i)}px">
+      <div class="tile"><img src="../assets/inboxmonster/${img}.svg"></div>
+      <div><h4 class="display">${title}</h4><p>${desc}</p></div>
+    </div>`).join('');
+
+  const PREVIEWS = ['Android · Gmail', 'Android · Gmail · Dark', 'iPhone · Apple Mail', 'Outlook · Windows', 'Gmail · Web', 'Yahoo · Web'];
+  const PREV_POS = (i) => [200 + (i % 3) * 520, 290 + Math.floor(i / 3) * 340];
+  $('#previews').innerHTML = PREVIEWS.map((label, i) => {
+    const [x, y] = PREV_POS(i);
+    return `<div class="abs cr prev${i === 1 ? ' dark' : ''}" style="left:${x}px; top:${y}px">
+      <div class="mail">
+        <img class="logo" src="../assets/inboxmonster/logo.svg">
+        <div class="bar" style="top:60px; width:220px"></div>
+        <div class="bar" style="top:88px; width:160px; opacity:.55"></div>
+        <div class="bar" style="top:116px; width:190px; opacity:.55"></div>
+        <div class="cta"></div>
+        <img class="mon" src="../assets/inboxmonster/monstie-blue.svg">
+      </div>
+      <div class="label">${label}</div>
+    </div>`;
+  }).join('');
+
+  // Inbox bar geometry, and the chart columns that the green segment splits into.
+  const BAR = { x: 260, y: 600, w: 1400, h: 44 };
+  const GAP = 8;
+  const FILL_W = BAR.w - 2 * GAP;
+  const GREEN_W = FILL_W * 0.9485;
+  const WEEKS = [68, 71, 75, 79, 83, 88, 92, 97];
+  const N = WEEKS.length;
+  const SLICE_W = (GREEN_W - (N - 1) * GAP) / N;
+  const COL = (i) => { const h = (WEEKS[i] / 100) * 520; return box(270 + i * 180, 900 - h, 120, h, 20); };
+  const SLICE = (i) => box(BAR.x + i * (SLICE_W + GAP), BAR.y, SLICE_W, BAR.h, 22);
+  $('#cols').innerHTML = WEEKS.map(() => '<div class="morph col"></div>').join('');
+  $('#vals').innerHTML = WEEKS.map((v, i) => `<div class="abs val" style="left:${COL(i).x}px; top:${COL(i).y - 46}px">${v}%</div>`).join('');
+  const POINTS = WEEKS.map((_, i) => [COL(i).x + 60, COL(i).y]);
+  $('#chart-line').setAttribute('points', POINTS.map((p) => p.join(',')).join(' '));
+  $('#chart-dots').innerHTML = POINTS.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="10" fill="#fff"/>`).join('');
+  const LINE_LEN = POINTS.slice(1).reduce((s, p, i) => s + Math.hypot(p[0] - POINTS[i][0], p[1] - POINTS[i][1]), 0);
+
+  $('#carriers').innerHTML = ['Verizon', 'AT&T', 'T-Mobile', 'Rogers', 'Bell'].map((c, i) =>
+    `<div class="abs carrier" style="top:${360 + i * 76}px"><b>${c}</b><span class="dot"></span>Delivered</div>`).join('');
+
+  // ---------------------------------------------------------------- timeline (seconds)
+  const T = {
+    navIn: 1.2, hover: 2.7, click1: 3.1, drop: 3.3, hoverRow: 4.8, click2: 5.1, card: 5.35,
+    cta: 7.9, ipr: 8.5, fill: 9.2, split: 11.5, line: 12.5, phone: 14.9, sms: 15.8,
+    brand: 18.4, collapse: 21.3, end: 21.6, out: 25,
+  };
+
+  // Measured once fonts are ready (first render call).
+  let navProducts;
+
+  function renderNav(t) {
+    const shell = chain(t, [
+      [0, box(952, 532, 16, 16, 8)],
+      [0.05, box(905, 485, 110, 110, 55), POP],
+      [0.45, box(80, 485, 1760, 110, 55)],
+      [0.95, box(80, 50, 1760, 110, 55), SOFT],
+    ], SNAP);
+    const exit = lerp(0, -220, spring(t - T.card, SNAP));
+    shell.y += exit;
+    place($('#shell'), shell, mixColor('#700469', '#FFFFFF', progress(t, 0.95, 1.35)));
+
+    const items = [$('#nav-logo'), ...$$('.nav-item'), $('#nav-book'), $('#nav-login')];
+    items.forEach((el, i) => {
+      const p = spring(t - T.navIn - i * 0.06, SNAP);
+      el.style.opacity = clamp(p * 2);
+      el.style.transform = `translateY(${lerp(20, 0, p) + exit}px)`;
+    });
+  }
+
+  function renderDropdown(t) {
+    const r = navProducts;
+    const hover = box(r.x - 22, 80, r.w + 44, 50, 25);
+    const hl = chain(t, [
+      [0, hover],
+      [T.drop, box(600, 190, 720, 600, 28)],
+    ], SNAP);
+    const el = $('#hl');
+    place(el, hl, mixColor('#E4EDEB', '#FFFFFF', progress(t, T.drop, T.drop + 0.3)));
+    el.style.opacity = fadeIn(t, T.hover, 0.15) * fadeOut(t, T.card + 0.2, 0.3);
+    el.style.boxShadow = `0 24px 60px rgba(51,0,51,${0.12 * progress(t, T.drop, T.drop + 0.3)})`;
+    el.style.transform = `scale(${1 - 0.06 * Math.sin(Math.PI * progress(t, T.click1, T.click1 + 0.16))})`;
+
+    $$('.row').forEach((row, i) => {
+      const p = spring(t - T.drop - 0.4 - i * 0.08, SNAP);
+      row.style.opacity = clamp(p * 2) * fadeOut(t, T.card - 0.15, 0.15);
+      row.style.transform = `translateY(${lerp(24, 0, p)}px)`;
+    });
+
+    // Creative Rendering row highlight → the rendering card.
+    const rowhl = chain(t, [
+      [0, box(620, ROW_Y(1), 680, 124, 20)],
+      [T.card, box(120, 90, 1680, 900, 36)],
+    ], SNAP);
+    const rh = $('#rowhl');
+    place(rh, rowhl, mixColor('#ECF4F2', '#FFFFFF', progress(t, T.card, T.card + 0.3)));
+    rh.style.opacity = fadeIn(t, T.hoverRow, 0.15) * fadeOut(t, T.cta + 0.1, 0.3);
+    rh.style.boxShadow = `0 30px 80px rgba(51,0,51,${0.12 * progress(t, T.card, T.card + 0.4)})`;
+    rh.style.transform = `scale(${1 - 0.03 * Math.sin(Math.PI * progress(t, T.click2, T.click2 + 0.16))})`;
+  }
+
+  function renderRendering(t) {
+    rise($('#cr-title'), t, T.card + 0.45, T.cta);
+    rise($('#cr-stat'), t, T.card + 0.55, T.cta);
+    $('#cr-num').textContent = `${Math.round(120 * easeOutCubic(progress(t, T.card + 0.6, T.card + 1.9)))}+`;
+    $$('.prev').forEach((p, i) => {
+      const s = spring(t - T.card - 0.6 - i * 0.08, POP);
+      p.style.transform = `scale(${Math.max(0, lerp(0.4, 1, s))})`;
+      p.style.opacity = clamp(s * 3) * fadeOut(t, T.cta, 0.25);
+      // Tile 0's button is handed over to #track at T.cta.
+      if (i === 0) p.querySelector('.cta').style.visibility = t < T.cta ? 'visible' : 'hidden';
+    });
+  }
+
+  function renderDeliverability(t) {
+    const [cx, cy] = PREV_POS(0);
+    const cta = box(cx + 40, cy + 180, 110, 30, 15);
+    const track = chain(t, [
+      [0, cta],
+      [T.cta + 0.1, box(BAR.x, BAR.y, BAR.w, BAR.h, 22)],
+    ], SNAP);
+    const tr = $('#track');
+    place(tr, track, mixColor('#700469', '#E9DCE8', progress(t, T.cta + 0.1, T.cta + 0.5)));
+    tr.style.visibility = t >= T.cta ? 'visible' : 'hidden';
+    tr.style.opacity = fadeOut(t, T.split, 0.2);
+
+    const card = chain(t, [
+      [0, box(BAR.x, BAR.y, BAR.w, BAR.h, 22)],
+      [T.ipr, box(200, 400, 1520, 440, 32)],
+    ], SNAP);
+    const ipr = $('#ipr');
+    place(ipr, card, '#F6EEF5');
+    ipr.style.opacity = fadeIn(t, T.ipr, 0.1) * fadeOut(t, T.split - 0.1, 0.3);
+    ipr.style.boxShadow = '0 30px 80px rgba(0,0,0,0.3)';
+
+    $$('.ipr-t').forEach((el, i) => rise(el, t, T.ipr + 0.35 + i * 0.05, T.split - 0.2));
+    rise($('#h-ipr'), t, T.ipr + 0.2, T.split - 0.2, 60);
+
+    const f = easeOutCubic(progress(t, T.fill, T.fill + 1.5));
+    const inbox = 94.85 * f, bulk = 5.14 * f, missing = 0.01 * f;
+    const g = $('#seg-inbox'), y = $('#seg-bulk'), m = $('#seg-missing');
+    g.style.width = `${GREEN_W * f}px`;
+    g.style.visibility = t < T.split ? 'visible' : 'hidden';
+    y.style.left = `${BAR.x + GREEN_W * f + GAP}px`;
+    y.style.width = `${FILL_W * 0.0514 * f}px`;
+    m.style.left = `${BAR.x + GREEN_W * f + FILL_W * 0.0514 * f + 2 * GAP}px`;
+    m.style.width = `${f > 0.9 ? 12 : 0}px`;
+    [y, m].forEach((el) => (el.style.opacity = (f > 0 ? 1 : 0) * fadeOut(t, T.split - 0.2, 0.25)));
+    $('#v-inbox').textContent = `${inbox.toFixed(2)}%`;
+    $('#v-bulk').textContent = `${bulk.toFixed(2)}%`;
+    $('#v-missing').textContent = `${missing.toFixed(2)}%`;
+    $('#ipr-big').textContent = `${inbox.toFixed(2)}%`;
+  }
+
+  function renderChart(t) {
+    $$('.col').forEach((el, i) => {
+      const last = i === N - 1;
+      const keys = [
+        [0, SLICE(i)],
+        [T.split + 0.05 + i * 0.05, COL(i)],
+      ];
+      if (last) keys.push([T.phone + 0.1, box(760, 120, 400, 840, 64)]);
+      else keys.push([T.phone + i * 0.03, { ...COL(i), y: 900, h: 0 }]);
+      const b = chain(t, keys, SNAP);
+      const color = last
+        ? mixColor('#00DB4F', '#330033', progress(t, T.phone + 0.1, T.phone + 0.45))
+        : '#00DB4F';
+      place(el, b, color);
+      el.style.visibility = t >= T.split ? 'visible' : 'hidden';
+      if (last) el.style.opacity = fadeOut(t, T.brand, 0.35);
+    });
+
+    const d = easeInOutCubic(progress(t, T.line, T.line + 1.0));
+    const line = $('#chart-line');
+    line.style.strokeDasharray = LINE_LEN;
+    line.style.strokeDashoffset = LINE_LEN * (1 - d);
+    $('#chart-svg').style.opacity = (t >= T.line ? 1 : 0) * fadeOut(t, T.phone - 0.15, 0.2);
+    $$('#chart-dots circle').forEach((c, i) => {
+      const at = T.line + (i / (N - 1)) * 1.0;
+      c.setAttribute('r', 10 * Math.max(0, spring(t - at, POP)));
+    });
+    $$('.val').forEach((el, i) => rise(el, t, T.line + (i / (N - 1)) * 1.0, T.phone - 0.15, 16));
+    rise($('#axis-a'), t, T.split + 0.5, T.phone - 0.15, 10);
+    rise($('#axis-b'), t, T.split + 0.9, T.phone - 0.15, 10);
+    rise($('#h-chart'), t, T.split + 0.5, T.phone - 0.15, 60);
+  }
+
+  function renderPhone(t) {
+    const out = spring(t - T.brand, SNAP);
+    const sc = $('#screen');
+    place(sc, box(778, 138, 364, 804, 48));
+    sc.style.opacity = fadeIn(t, T.phone + 0.55, 0.3) * fadeOut(t, T.brand, 0.35);
+    ['#notch', '#contact'].forEach((s) => rise($(s), t, T.phone + 0.7, T.brand, 10));
+    popBubble($('#b1'), t, T.sms, '0% 100%');
+    popBubble($('#b2'), t, T.sms + 0.35, '0% 100%', true);
+    rise($('#delivered'), t, T.sms + 0.8, T.brand, 10);
+
+    const s = $('#sms-stat');
+    const ps = spring(t - T.sms - 0.2, SNAP);
+    s.style.transform = `translateX(${lerp(-80, 0, ps)}px)`;
+    s.style.opacity = clamp(ps * 2) * (1 - out);
+    const big = s.querySelector('.display');
+    big.textContent = `${Math.round(98 * easeOutCubic(progress(t, T.sms, T.sms + 1.3)))}%`;
+    $$('.carrier').forEach((c, i) => {
+      const p = spring(t - T.sms - 0.5 - i * 0.12, SNAP);
+      c.style.transform = `translateX(${lerp(80, 0, p)}px)`;
+      c.style.opacity = clamp(p * 2) * (1 - out);
+    });
+  }
+
+  // #b2 hands itself to #bub (the brand bubble) at T.brand.
+  function popBubble(el, t, start, origin, handover) {
+    const p = Math.max(0, spring(t - start, POP));
+    el.style.transformOrigin = origin;
+    el.style.transform = `scale(${p})`;
+    el.style.opacity = clamp(p * 4) * (handover ? (t < T.brand + 0.05 ? 1 : 0) : fadeOut(t, T.brand, 0.3));
+  }
+
+  function renderBrand(t) {
+    const epic = $('#w-epic');
+    const eh = 410 * 138 / 234;
+    const b = chain(t, [
+      [0, box(800, 430, 250, $('#b2').offsetHeight, 28)],
+      [T.brand + 0.05, box(520, 215, 410, eh * 0.84, 10)],
+    ], SNAP);
+    const bub = $('#bub');
+    place(bub, b, '#FFFFFF');
+    bub.style.border = `${lerp(0, 5, progress(t, T.brand + 0.05, T.brand + 0.4))}px solid #700469`;
+    bub.style.visibility = t >= T.brand + 0.05 ? 'visible' : 'hidden';
+    bub.style.opacity = fadeOut(t, T.brand + 0.55, 0.15);
+
+    const collapse = spring(t - T.collapse, SNAP);
+    // Fly toward the logo's centre while shrinking away.
+    const toLogo = (el) => {
+      const dx = 960 - (el.offsetLeft + el.offsetWidth / 2);
+      const dy = 340 - (el.offsetTop + el.offsetHeight / 2);
+      el.style.transform = `translate(${dx * collapse}px, ${dy * collapse}px) ` + el.style.transform + ` scale(${Math.max(0, 1 - collapse)})`;
+    };
+
+    epic.style.opacity = fadeIn(t, T.brand + 0.45, 0.2);
+    epic.style.transform = '';
+    toLogo(epic);
+
+    [['#w-emails', 0.15, '80% 100%'], ['#w-every', 0.3, '25% 100%'], ['#w-time', 0.45, '50% 100%']]
+      .forEach(([sel, d, origin]) => {
+        const el = $(sel);
+        const p = Math.max(0, spring(t - T.brand - 0.5 - d, POP));
+        el.style.transformOrigin = origin;
+        el.style.transform = `scale(${p})`;
+        el.style.opacity = clamp(p * 4);
+        toLogo(el);
+      });
+
+    // Blue and pink stay on for the end card; red and green fold into the logo.
+    const mons = [
+      ['#m-blue', 0, { x: 150, y: 760, w: 200 }],
+      ['#m-pink', 1.5, { x: 1580, y: 140, w: 180 }],
+      ['#m-red', 3, null],
+      ['#m-green', 4.5, null],
+    ];
+    mons.forEach(([sel, phase, dest], i) => {
+      const el = $(sel);
+      const start = T.brand + 1.1 + i * 0.12;
+      const p = Math.max(0, spring(t - start, POP));
+      const bob = 8 * Math.sin((t - start) * 2.4 + phase) * clamp(t - start);
+      el.style.opacity = clamp(p * 4);
+      if (dest) {
+        const x0 = parseFloat(el.style.left), y0 = parseFloat(el.style.top), w0 = parseFloat(el.style.width);
+        const q = spring(t - T.collapse - 0.1, SOFT);
+        el.style.transformOrigin = '0 0';
+        el.style.transform = `translate(${(dest.x - x0) * q}px, ${(dest.y - y0) * q + bob}px) scale(${p * lerp(1, dest.w / w0, q)})`;
+      } else {
+        el.style.transform = `translateY(${bob}px) scale(${p})`;
+        toLogo(el);
+      }
+    });
+
+    const pl = spring(t - T.brand - 0.4, SOFT), pr = spring(t - T.brand - 0.5, SOFT);
+    $('#hero-left').style.transform = `translateX(${lerp(-560, 0, pl) - 560 * collapse}px)`;
+    $('#hero-right').style.transform = `translateX(${lerp(620, 0, pr) + 620 * collapse}px)`;
+    [$('#hero-left'), $('#hero-right')].forEach((el) => (el.style.visibility = t >= T.brand ? 'visible' : 'hidden'));
+  }
+
+  function renderEnd(t) {
+    popScale($('#end-logo'), t, T.end);
+    rise($('#end-tag'), t, T.end + 0.4);
+    const btn = $('#end-btn');
+    const label = btn.firstElementChild;
+    const s = Math.max(0, spring(t - T.end - 0.8, POP));
+    const w = lerp(110, 400, spring(t - T.end - 1.1, SNAP));
+    place(btn, box(960 - w / 2, 670, w, 110, 55), '#700469');
+    btn.style.transform = `scale(${s})`;
+    label.style.opacity = fadeIn(t, T.end + 1.25, 0.25);
+    rise($('#end-url'), t, T.end + 1.5);
+  }
+
+  function renderCursor(t) {
+    const r = navProducts;
+    const c = chain(t, [
+      [0, { x: 1250, y: 1150 }],
+      [2.0, { x: r.x + r.w / 2 - 6, y: 104 }, SOFT],
+      [4.3, { x: 820, y: ROW_Y(1) + 50 }, SOFT],
+      [5.5, { x: 1250, y: 1200 }, SOFT],
+    ]);
+    const press = (at) => 0.18 * Math.sin(Math.PI * progress(t, at, at + 0.16));
+    const el = $('#cursor');
+    el.style.transform = `translate(${c.x}px, ${c.y}px) scale(${1 - press(T.click1) - press(T.click2)})`;
+    el.style.visibility = t > 1.9 && t < 6.5 ? 'visible' : 'hidden';
+  }
+
+  window.scene = {
+    width: 1920,
+    height: 1080,
+    duration: T.out,
+    render(t) {
+      if (!navProducts) {
+        const el = $('#nav-products');
+        navProducts = { x: el.offsetLeft, w: el.offsetWidth };
+      }
+      // Background: mint → plum (deliverability + chart) → mint (SMS) → white (end).
+      const bg = t < 12
+        ? mixColor('#ECF4F2', '#700469', progress(t, T.cta + 0.1, T.cta + 0.7))
+        : t < T.collapse
+          ? mixColor('#700469', '#ECF4F2', progress(t, T.phone + 0.1, T.phone + 0.7))
+          : mixColor('#ECF4F2', '#FFFFFF', progress(t, T.collapse, T.collapse + 0.6));
+      document.body.style.background = bg;
+
+      renderNav(t);
+      renderDropdown(t);
+      renderRendering(t);
+      renderDeliverability(t);
+      renderChart(t);
+      renderPhone(t);
+      renderBrand(t);
+      renderEnd(t);
+      renderCursor(t);
+    },
+  };
+</script>
+</body>
+</html>
